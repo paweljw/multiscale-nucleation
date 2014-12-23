@@ -7,16 +7,7 @@
 #include <QLabel>
 #include <QFrame>
 
-#include <iostream>
-
-// nucleation:
-// - on/off
-// - every
-// - mode (const/inc/dec)
-// - change
-
-// perform X steps of nucleation
-
+// Nothing too important in here.
 MultiscaleWidget::MultiscaleWidget(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -41,6 +32,7 @@ MultiscaleWidget::MultiscaleWidget(QWidget *parent)
   reset_bt->setGeometry(WIDTH + 20, 40, 170, 30);
   connect(reset_bt, SIGNAL(clicked()), this, SLOT(PrepareNodesSlot()));
 
+  //---------- Divider line
   QFrame* line = new QFrame(this);
   line->setObjectName(QString::fromUtf8("line"));
   line->setGeometry(QRect(WIDTH+20, 136, 170, 3));
@@ -104,6 +96,7 @@ MultiscaleWidget::MultiscaleWidget(QWidget *parent)
   redraws = true;
 }
 
+// What happens when "Run nucleations" button is clicked.
 void MultiscaleWidget::NucleationSlot()
 {
   nucs_step = NUCLEATIONS;
@@ -139,6 +132,7 @@ void MultiscaleWidget::NucleationSlot()
   this->repaint();
 }
 
+// What happens when "Show energy map" button is clicked.
 void MultiscaleWidget::ShowEnergyMapSlot()
 {
   if (energyMode)
@@ -149,6 +143,8 @@ void MultiscaleWidget::ShowEnergyMapSlot()
   this->repaint();
 }
 
+
+// What happens when "Distribute energy" button is clicked.
 void MultiscaleWidget::DistributeEnergySlot()
 {
   redraws = false; 
@@ -177,10 +173,9 @@ void MultiscaleWidget::DistributeEnergySlot()
   this->repaint();
 }
 
+// Performs a MonteCarlo step.
 void MultiscaleWidget::MCStepSlot()
 {
-//  redraws = false;
-
   pb->setMinimum(0);
   pb->setMaximum(steps_le->text().toInt());
   pb->setValue(0);
@@ -193,14 +188,12 @@ void MultiscaleWidget::MCStepSlot()
     pb->setValue(i+1);
     this->repaint();
   }
-//  redraws = true;
-  
 }
 
+// Sets up a Monte Carlo field.
 void MultiscaleWidget::prepareNodes()
 {
   redraws = false;
-  //---------- prepare a MC play field
   nodes = new Node*[DIM];
   for(int i=0; i<DIM; i++)
   {
@@ -223,6 +216,7 @@ void MultiscaleWidget::prepareNodes()
   this->repaint();
 }
 
+// Helper. :>
 void MultiscaleWidget::copyNextToCurrent()
 {
   for(int i=0; i<DIM; i++)
@@ -230,11 +224,14 @@ void MultiscaleWidget::copyNextToCurrent()
       nodes[i][j] = next[i][j];
 }
 
+// Generates random colors.
 void MultiscaleWidget::generateColors()
 {
   colors = new QColor[2*(DIM*DIM+1)];
 
   colors[0] = Qt::black;
+
+  // Generates random colors in the green-blue spectrum
   for(int i=1; i<DIM*DIM+1; i++)
   {
     int g = 40 + static_cast<int> ( static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/215.0f)) );
@@ -242,6 +239,7 @@ void MultiscaleWidget::generateColors()
     colors[i] = QColor::fromRgb(0, g, b);
   }
 
+  // Generates colors in the red spectrum for nucleations
   for(int i=DIM*DIM+1; i<2*(DIM*DIM+1); i++)
   {
     int r = 40 + static_cast<int> ( static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/175.0f)) );
@@ -250,11 +248,13 @@ void MultiscaleWidget::generateColors()
 
 }
 
+// Reset button click action.
 void MultiscaleWidget::PrepareNodesSlot()
 {
   prepareNodes();
 }
 
+// Redraw action, paints the pretty pretty colors.
 void MultiscaleWidget::paintEvent(QPaintEvent *e)
 {
   Q_UNUSED(e);
@@ -262,6 +262,8 @@ void MultiscaleWidget::paintEvent(QPaintEvent *e)
   drawLines(&qp);
 }
 
+// This shouldn't be called drawLines. But it is.
+// I probably copied it from some tutorial.
 void MultiscaleWidget::drawLines(QPainter *qp)
 {  
   if(redraws)
@@ -285,6 +287,7 @@ void MultiscaleWidget::drawLines(QPainter *qp)
   }
 }
 
+// Helper.
 void MultiscaleWidget::clearNext()
 {
   for(int i=0; i<DIM; i++)

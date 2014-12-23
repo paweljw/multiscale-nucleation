@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
+// Performs, basically, an MC step w/ regard to recrystallization status.
 Node** NucleationProcessor::processField(Node** nodes, Node** next, float Hi)
 {
   while(MonteCarloUntouchedFieldsExist(next))
@@ -34,6 +35,7 @@ Node** NucleationProcessor::processField(Node** nodes, Node** next, float Hi)
   return next;
 }
 
+// Energy in floating point, Hi included
 float NucleationProcessor::CurrentEnergy(Node** nodes, int x,  int y, float Hi)
 {
   Node thisCol = nodes[x][y];
@@ -58,6 +60,7 @@ float NucleationProcessor::CurrentEnergy(Node** nodes, int x,  int y, float Hi)
   return energy;
 }
 
+// Simulation does not require Hi
 float NucleationProcessor::SimulateEnergy(Node** nodes, Node sim, int x,  int y)
 {
   Node *cols = new Node[8];
@@ -80,6 +83,7 @@ float NucleationProcessor::SimulateEnergy(Node** nodes, Node sim, int x,  int y)
   return energy;
 }
 
+// Function to place new nucleations according to rules
 void NucleationProcessor::SpreadNucleations(Node** nodes, int num, int mode)
 {
   int tried_times = 0;
@@ -93,17 +97,17 @@ void NucleationProcessor::SpreadNucleations(Node** nodes, int num, int mode)
 
      if(mode == 0)
      {
-        if(!nodes[x][y].recryst) // we got us a boundary, woo hoo
+        if(!nodes[x][y].recryst)
        {
           nodes[x][y].recryst = true;
           nodes[x][y].id += DIM*DIM; // thaaaat's racist
           num--;
        }
      } else {
-       if (IsGrainBoundary(nodes, x, y) && !nodes[x][y].recryst) // we got us a boundary, woo hoo
+       if (IsGrainBoundary(nodes, x, y) && !nodes[x][y].recryst)
        {
           nodes[x][y].recryst = true;
-          nodes[x][y].id += DIM*DIM; // thaaaat's racist
+          nodes[x][y].id += DIM*DIM; // thaaaat's racist, too
           num--;
        }
      }
@@ -116,6 +120,7 @@ void NucleationProcessor::SpreadNucleations(Node** nodes, int num, int mode)
   }
 }
 
+// Checks whether there is at least one recrystallized neighbour in a Moore neighbourhood
 bool NucleationProcessor::RecrystSite(Node** nodes, int x, int y)
 {
   Node thisCol = nodes[x][y];
@@ -137,6 +142,7 @@ bool NucleationProcessor::RecrystSite(Node** nodes, int x, int y)
   return false;
 }
 
+// Picks a random recrystallized neighbor
 Node NucleationProcessor::RandomRecrystNeighbor(Node** nodes, int x, int y)
 {
   Node* cols = new Node[8];

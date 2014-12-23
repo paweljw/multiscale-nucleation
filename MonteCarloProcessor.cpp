@@ -3,12 +3,14 @@
 #include <cstdlib>
 #include <iostream>
 
+// Normalizes coordinates for periodic fields.
 int MonteCarloProcessor::SafeCoord(int coord)
 {
     if (coord >= 0) return (coord % DIM);
     else return (coord + DIM);
 }
 
+// Monte Carlo step
 Node** MonteCarloProcessor::processField(Node** nodes, Node** next)
 {
 	while(MonteCarloProcessor::MonteCarloUntouchedFieldsExist(next))
@@ -37,6 +39,7 @@ Node** MonteCarloProcessor::processField(Node** nodes, Node** next)
 	return next;
 }
 
+// Checks if step should end
 bool MonteCarloProcessor::MonteCarloUntouchedFieldsExist(Node** next)
 {
   for(int i=0;i<DIM;i++)
@@ -46,6 +49,7 @@ bool MonteCarloProcessor::MonteCarloUntouchedFieldsExist(Node** next)
   return false;
 }
 
+// Calculates current energy in node
 int MonteCarloProcessor::CurrentEnergy(Node** nodes, int x,  int y)
 {
   Node thisCol = nodes[x][y];
@@ -70,6 +74,7 @@ int MonteCarloProcessor::CurrentEnergy(Node** nodes, int x,  int y)
   return energy;
 }
 
+// Checks if it's a grain boundary
 bool MonteCarloProcessor::IsGrainBoundary(Node** nodes, int x,  int y)
 {
   Node thisCol = nodes[x][y];
@@ -92,6 +97,7 @@ bool MonteCarloProcessor::IsGrainBoundary(Node** nodes, int x,  int y)
   return false;
 }
 
+// Well, duh.
 Node MonteCarloProcessor::RandomNeighbor(Node** nodes, int x, int y)
 {
   Node* cols = new Node[8];
@@ -107,6 +113,7 @@ Node MonteCarloProcessor::RandomNeighbor(Node** nodes, int x, int y)
   return cols[int(rand()%8)];
 }
 
+// Simulates what the energy at coordinates would be if the orientation was changed to sim.
 int MonteCarloProcessor::SimulateEnergy(Node** nodes, Node sim, int x,  int y)
 {
   Node *cols = new Node[8];
