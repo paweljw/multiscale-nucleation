@@ -125,17 +125,11 @@ void MultiscaleWidget::NucleationSlot()
       } else if(nuc_mode->currentIndex() == 2) {
         nucs_step -= nuc_change->text().toInt();      
       }
-
-      std::cout << "Got this far" << std::endl;
-
       NucleationProcessor::SpreadNucleations(nodes, nucs_step, cb->currentIndex()); // apply actual nucleations
     }
 
-    std::cout << "Got this far2" << std::endl;
-
     NucleationProcessor::processField(nodes, next, ene_le->text().toFloat());
 
-    std::cout << "Got this far3" << std::endl;
     copyNextToCurrent();
     pb->setValue(i+1);
     this->repaint();

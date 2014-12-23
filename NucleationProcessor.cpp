@@ -18,9 +18,7 @@ Node** NucleationProcessor::processField(Node** nodes, Node** next, float Hi)
       {
         next[x][y] = nodes[x][y];
       } else {
-        std::cout << "recryst site" << std::endl;
         Node randomNeighbor = RandomRecrystNeighbor(nodes, x, y);
-        std::cout << "recryst nejb" << std::endl;
 
         if(CurrentEnergy(nodes, x, y, Hi) >= SimulateEnergy(nodes, randomNeighbor, x, y))
         {
@@ -158,7 +156,5 @@ Node NucleationProcessor::RandomRecrystNeighbor(Node** nodes, int x, int y)
     ret = cols[int(rand()%8)];
   } while(!ret.recryst);
   
-  std::cout << "Found recryst neighbour" << std::endl;
-
   return ret;
 }
