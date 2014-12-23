@@ -84,8 +84,12 @@ float NucleationProcessor::SimulateEnergy(Node** nodes, Node sim, int x,  int y)
 
 void NucleationProcessor::SpreadNucleations(Node** nodes, int num, int mode)
 {
+  int tried_times = 0;
+
   while(num != 0)
   {
+    tried_times++;
+    
      int x = int(rand()%DIM);
      int y = int(rand()%DIM);
 
@@ -105,6 +109,12 @@ void NucleationProcessor::SpreadNucleations(Node** nodes, int num, int mode)
           num--;
        }
      }
+
+    if(tried_times > 25)
+    {
+      num--;
+      tried_times=0;
+    }
   }
 }
 
