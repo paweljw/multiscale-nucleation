@@ -8,4 +8,5 @@
 #define NUCLEATIONS 10
 
 const float ENERGY_MAX = 2.0f;
-const float ENERGY_DELTA = 1.0f;
+const float ENERGY_MIN = 0.0f;
+// const float ENERGY_DELTA = 1.0f;

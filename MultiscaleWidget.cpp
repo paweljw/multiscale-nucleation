@@ -72,6 +72,7 @@ MultiscaleWidget::MultiscaleWidget(QWidget *parent)
   nuc_mode->insertItem(0, "Constant");
   nuc_mode->insertItem(1, "Increasing");
   nuc_mode->insertItem(2, "Decreasing");
+  nuc_mode->insertItem(3, "Once");
   nuc_mode->setGeometry(WIDTH+20, 290, 170, 30);
 
   QLabel *nucl = new QLabel("Nucleation every:", this);
@@ -86,14 +87,18 @@ MultiscaleWidget::MultiscaleWidget(QWidget *parent)
   nuc_change = new QLineEdit("1", this);
   nuc_change->setGeometry(WIDTH+20, 383, 170, 30);
 
+  ene_J = new QLineEdit("1.000", this);
+  ene_J->setGeometry(WIDTH + 20, 413, 170, 30);
+
   QPushButton *nucleate = new QPushButton("Run nucleations", this);
-  nucleate->setGeometry(WIDTH+20, 413, 170, 30);
+  nucleate->setGeometry(WIDTH+20, 443, 170, 30);
   connect(nucleate, SIGNAL(clicked()), this, SLOT(NucleationSlot()));
 
   generateColors();
   prepareNodes();
   clearNext();
   redraws = true;
+  doneOnce = false;
 }
 
 // What happens when "Run nucleations" button is clicked.
@@ -105,23 +110,34 @@ void MultiscaleWidget::NucleationSlot()
   pb->setMaximum(steps_le->text().toInt());
   pb->setValue(0);
 
+  if (nuc_mode->currentIndex() == 3 && !doneOnce)
+  {
+    NucleationProcessor::SpreadNucleations(nodes, nucs_step); // apply actual nucleations
+    doneOnce = true;
+  }
+
   for(int i=0; i< steps_le->text().toInt(); i++)
   {
     clearNext();
 
-    if(!(i%nuc_every->text().toInt()))
+    if(nuc_mode->currentIndex() != 3)
     {
-      // apply nucleation number change (if applicable)
-      if (nuc_mode->currentIndex() == 1)
+      if(!(i%nuc_every->text().toInt()))
       {
-        nucs_step += nuc_change->text().toInt();
-      } else if(nuc_mode->currentIndex() == 2) {
-        nucs_step -= nuc_change->text().toInt();      
+        // apply nucleation number change (if applicable)
+        if (nuc_mode->currentIndex() == 1)
+        {
+          nucs_step += nuc_change->text().toInt();
+        } else if(nuc_mode->currentIndex() == 2) {
+          nucs_step -= nuc_change->text().toInt();      
+          if (nucs_step < 0) nucs_step = 0;
+        }
+
+        NucleationProcessor::SpreadNucleations(nodes, nucs_step); // apply actual nucleations
       }
-      NucleationProcessor::SpreadNucleations(nodes, nucs_step, cb->currentIndex()); // apply actual nucleations
     }
 
-    NucleationProcessor::processField(nodes, next, ene_le->text().toFloat());
+    NucleationProcessor::processField(nodes, next, ene_le->text().toFloat(), ene_J->text().toFloat());
 
     copyNextToCurrent();
     pb->setValue(i+1);
@@ -165,7 +181,7 @@ void MultiscaleWidget::DistributeEnergySlot()
         if(MonteCarloProcessor::IsGrainBoundary(nodes, i, j))
           nodes[i][j].energy = ENERGY_MAX;
         else
-          nodes[i][j].energy = 0.0f;
+          nodes[i][j].energy = ENERGY_MIN;
       }
   }
 
@@ -252,6 +268,7 @@ void MultiscaleWidget::generateColors()
 void MultiscaleWidget::PrepareNodesSlot()
 {
   prepareNodes();
+  doneOnce = false;
 }
 
 // Redraw action, paints the pretty pretty colors.

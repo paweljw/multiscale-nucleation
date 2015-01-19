@@ -38,7 +38,9 @@ class MultiscaleWidget : public QMainWindow
     QComboBox *nuc_mode;
     QLineEdit *nuc_every;
     QLineEdit *nuc_change;
+    QLineEdit *ene_J;
     int nucs_step;
+    bool doneOnce;
 
     void prepareNodes();
     void generateColors();
